@@ -4,6 +4,11 @@ import { AI_PROMPT, SelectBudgetOptions, SelectTravelesList } from '../constants
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { chatSession } from '../service/AIModal';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
+import { X } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
+import { useGoogleLogin } from '@react-oauth/google';
+
 
 function CreateTrip() {
     const [place,setPlace]=useState();
@@ -12,6 +17,7 @@ function CreateTrip() {
 
     const [formData,setFormData]=useState([]);
 
+    const [openDailog,setOpenDailog]=useState(false);
     const handleInputChange=(name,value)=>{
 
       // if(name=='noOfDays'&&value>5)
@@ -30,7 +36,21 @@ function CreateTrip() {
       console.log(formData);
     },[formData])
 
+    const login=useGoogleLogin({
+      onSuccess:(codeResp)=>console.log(codeResp),
+      onError:(error)=>console.log(error)
+    })
+
     const OnGenerateTrip=async()=>{
+
+      const user=localStorage.getItem('user');
+
+      if(!user)
+      {
+        setOpenDailog(true)
+        return;
+      }
+
       if (!formData?.location||!formData?.budget||!formData?.traveler||!formData?.noOfDays)
       {
         toast.error("Please fill all details", {
@@ -131,6 +151,62 @@ console.log(result?.response?.text());
         Generate Trip
         </button>
         </div>
+
+        {/* ✅ Dialog Modal */}
+      <Dialog open={openDailog} onClose={setOpenDailog}>
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+      />
+
+      <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <DialogPanel
+            transition
+            className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in sm:my-8 sm:w-full sm:max-w-lg data-closed:sm:translate-y-0 data-closed:sm:scale-95"
+          >
+            {/* 🔹 ปุ่มกากบาท (X) ปิด Dialog */}
+            <button
+          onClick={() => setOpenDailog(false)}
+          className="absolute top-2 right-0 text-gray-500 hover:text-black"
+        >
+          <X size={24} strokeWidth={2} /> {/* ไอคอน X แบบบาง */}
+        </button>
+        
+            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <div className="sm:flex sm:items-start">
+                <div className=" text-center sm:mt-0 sm:ml-4 sm:text-left">
+                  {/* <DialogTitle as="h3" className="text-base font-semibold text-gray-900">
+                    Deactivate account
+                  </DialogTitle> */}
+                  <div>
+                    <img src="/logo.svg"/>
+                    <h2 className='font-bold text-lg mt-5'>Sign in with google</h2>
+                    <p>Sign in to the App with Google authentication</p>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+              <button
+                type="button"
+                onClick={login}
+                className="w-full flex items-center justify-center gap-4 rounded-md px-3 py-2 text-sm font-semibold text-white shadow-xs  sm:w-full bg-black"
+              >
+                <FcGoogle className='w-7 h-7'/>
+                Sign in with Google
+              </button>
+              
+            </div>
+          </DialogPanel>
+        </div>
+      </div>
+      </Dialog>
+
+
+        
+
     </div>
   )
 }
