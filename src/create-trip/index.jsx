@@ -8,7 +8,7 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/re
 import { X } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from '@react-oauth/google';
-
+import axios from 'axios';
 
 function CreateTrip() {
     const [place,setPlace]=useState();
@@ -19,12 +19,6 @@ function CreateTrip() {
 
     const [openDailog,setOpenDailog]=useState(false);
     const handleInputChange=(name,value)=>{
-
-      // if(name=='noOfDays'&&value>5)
-      // {
-      //   console.log("Please enter Trip days less than 5")
-      //   return;
-      // }
 
       setFormData({
         ...formData,
@@ -37,13 +31,15 @@ function CreateTrip() {
     },[formData])
 
     const login=useGoogleLogin({
-      onSuccess:(codeResp)=>console.log(codeResp),
+      onSuccess:(codeResp)=>GetUserProfile(codeResp),
       onError:(error)=>console.log(error)
     })
 
     const OnGenerateTrip=async()=>{
 
+      // const user=localStorage.getItem('user');
       const user=localStorage.getItem('user');
+      
 
       if(!user)
       {
@@ -79,6 +75,19 @@ console.log(result?.response?.text());
 
     }
 
+    const GetUserProfile = (tokenInfo) => {
+      axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?acess_token=${tokenInfo?.access_token}`, {
+        headers: {
+          Authorization: `Bearer ${tokenInfo?.access_token}`,
+          Accept: 'Application/json'
+        }
+      }).then((resp) => {
+        console.log(resp);
+        localStorage.setItem('user',JSON.stringify(resp.data));
+        setOpenDailog(false);
+        OnGenerateTrip();
+      })
+    }
 
   return (
     <div className='sm:px-10 md:px-32 lg:px-56 xl:px-10 px-5 mt-10'>
