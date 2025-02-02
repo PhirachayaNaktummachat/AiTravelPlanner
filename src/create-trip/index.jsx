@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
-import { SelectBudgetOptions, SelectTravelesList } from '../constants/options';
+import { AI_PROMPT, SelectBudgetOptions, SelectTravelesList } from '../constants/options';
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { chatSession } from '../service/AIModal';
 
 function CreateTrip() {
     const [place,setPlace]=useState();
@@ -29,14 +30,33 @@ function CreateTrip() {
       console.log(formData);
     },[formData])
 
-    const OnGenerateTrip=()=>{
-      if (formData?.noOfDays > 15 || !formData?.location||!formData?.budget||!formData?.traveler)
+    const OnGenerateTrip=async()=>{
+      if (!formData?.location||!formData?.budget||!formData?.traveler||!formData?.noOfDays)
       {
         toast.error("Please fill all details", {
         });
         return;
       }
-      console.log(formData);
+
+      if(formData?.noOfDays > 10 )
+        {
+          toast.error("The number of days must not exceed 10 days", {
+          });
+          return;
+        }
+
+const FINAL_PROMPT=AI_PROMPT
+.replace('{location',formData?.location?.label)
+.replace('{totalDays',formData?.noOfDays)
+.replace('{traveler}',formData?.traveler)
+.replace('{budget}',formData?.budget)
+
+console.log(FINAL_PROMPT);
+
+const result=await chatSession.sendMessage(FINAL_PROMPT);
+
+console.log(result?.response?.text());
+
     }
 
 
