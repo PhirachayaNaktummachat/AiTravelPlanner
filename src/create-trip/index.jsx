@@ -23,6 +23,7 @@ function CreateTrip() {
     const [openDailog,setOpenDailog]=useState(false);
 
     const [loading,setLoading]=useState(false);
+
     const handleInputChange=(name,value)=>{
 
       setFormData({
@@ -98,6 +99,7 @@ function CreateTrip() {
       });
 
       setLoading(false);
+      navigate('/view-trip/'+docId);
     }
 
 
