@@ -9,6 +9,9 @@ import { X } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../service/firebaseConfig';
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 function CreateTrip() {
     const [place,setPlace]=useState();
@@ -18,6 +21,8 @@ function CreateTrip() {
     const [formData,setFormData]=useState([]);
 
     const [openDailog,setOpenDailog]=useState(false);
+
+    const [loading,setLoading]=useState(false);
     const handleInputChange=(name,value)=>{
 
       setFormData({
@@ -37,10 +42,10 @@ function CreateTrip() {
 
     const OnGenerateTrip=async()=>{
 
+
       // const user=localStorage.getItem('user');
       const user=localStorage.getItem('user');
       
-
       if(!user)
       {
         setOpenDailog(true)
@@ -61,19 +66,40 @@ function CreateTrip() {
           return;
         }
 
-const FINAL_PROMPT=AI_PROMPT
-.replace('{location',formData?.location?.label)
-.replace('{totalDays',formData?.noOfDays)
-.replace('{traveler}',formData?.traveler)
-.replace('{budget}',formData?.budget)
+        setLoading(true);
+        const FINAL_PROMPT=AI_PROMPT
+        .replace('{location}',formData?.location?.label)
+        .replace('{totalDays}',formData?.noOfDays)
+        .replace('{traveler}',formData?.traveler)
+        .replace('{budget}',formData?.budget)
 
-console.log(FINAL_PROMPT);
+        const result=await chatSession.sendMessage(FINAL_PROMPT);
 
-const result=await chatSession.sendMessage(FINAL_PROMPT);
+        console.log("--", result?.response?.text());
 
-console.log(result?.response?.text());
+        setLoading(false);
 
+        SaveAiTrip(result?.response?.text())
     }
+
+    const SaveAiTrip=async(TripData)=>{
+
+      setLoading(true);
+
+      const user=JSON.parse(localStorage.getItem('user'));
+      const docId=Date.now().toString();
+
+      await setDoc(doc(db, "AITrips", docId), {
+        userSelection:formData,
+        tripData:JSON.parse(TripData),
+        userEmail:user?.email,
+        id:docId
+
+      });
+
+      setLoading(false);
+    }
+
 
     const GetUserProfile = (tokenInfo) => {
       axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?acess_token=${tokenInfo?.access_token}`, {
@@ -155,9 +181,12 @@ console.log(result?.response?.text());
 
         <div className='my-10 justify-end flex'>
         <button 
+        disabled={loading}
         onClick={OnGenerateTrip}
         className="rounded-md  bg-black px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black" >
-        Generate Trip
+        {loading?
+        <AiOutlineLoading3Quarters className='h-7 w-7 animate-spin'/> :'Generate Trip'
+        }
         </button>
         </div>
 
@@ -199,10 +228,10 @@ console.log(result?.response?.text());
             </div>
             <div className="px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
+                
                 type="button"
                 onClick={login}
-                className="w-full flex items-center justify-center gap-4 rounded-md px-3 py-2 text-sm font-semibold text-white shadow-xs  sm:w-full bg-black"
-              >
+                className="w-full flex items-center justify-center gap-4 rounded-md px-3 py-2 text-sm font-semibold text-white shadow-xs  sm:w-full bg-black" >
                 <FcGoogle className='w-7 h-7'/>
                 Sign in with Google
               </button>
