@@ -38,7 +38,7 @@ function Header() {
 
   return (
     <div className='p=2 shadow-sm flex justify-between items-center'>
-      <img src='/logo.svg'/>
+      <img src='/logo.svg' className='ml-2'/>
       
       <div>
         {user ?
@@ -71,7 +71,7 @@ function Header() {
                         onClick={()=>{
                           googleLogout();
                           localStorage.clear();
-                          window.location.reload();
+                          window.location.href = '/';
                         }}
                         className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">
                         Sign out
