@@ -43,9 +43,16 @@ function Header() {
       <div>
         {user ?
         <div className='flex item-center gap-3 p-1'>
-          <button variant='outline' className='rounded-full border border-gray-200 p-2 hover:border hover:border-black cursor-pointer'>
+          <a href='/create-trip'>
+          <button variant='outline' className='rounded-full border border-gray-200 p-2 hover:bg-gray-50 text-black cursor-pointer'>
+            Create Trip
+        </button>
+        </a>
+          <a href='/my-trips'>
+          <button variant='outline' className='rounded-full border border-gray-200 p-2 hover:bg-gray-50 text-black cursor-pointer'>
             My Trips
         </button>
+        </a>
         {/* <img src={user?.picture} className='h-[35px] w-[35px] rounded-full'/> */}
         
         <Menu as="div" className="relative inline-block text-left">
