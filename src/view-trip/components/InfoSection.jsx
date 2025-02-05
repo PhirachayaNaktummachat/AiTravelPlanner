@@ -1,22 +1,22 @@
 import React from 'react'
 import { useEffect } from 'react';
-import { GetPlacedetails } from '../../service/GlobalApi';
+import { GetPlaceDetails } from '../../service/GlobalApi';
 
 function InfoSection({trip}) {
 
-  useEffect(()=>{
-    trip&&GetPlacePhoto();
-  },[trip])
+  // useEffect(()=>{
+  //   trip&&GetPlacePhoto();
+  // },[trip])
 
-  const GetPlacePhoto=async()=>{
+  // const GetPlacePhoto=async()=>{
  
-    const data={
-      textQuery:trip?.userSelection?.location?.label
-    }
-    const result =await GetPlacedetails(data).then(resp=>{
-      console.log(resp.data)
-    })
-  }
+  //   const data={
+  //     textQuery:trip?.userSelection?.location?.label
+  //   }
+  //   const result =await GetPlaceDetails(data).then(resp=>{
+  //     console.log(resp.data)
+  //   })
+  // }
   return (
     <div>
         <img src='/placeholder.jpg' className='h-[300px] w-full object-cover rounded-xl'/>
