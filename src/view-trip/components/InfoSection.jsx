@@ -1,25 +1,31 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useEffect } from 'react';
-import { GetPlaceDetails } from '../../service/GlobalApi';
+import { GetPlaceDetails, PHOTO_REF_URL } from '../../service/GlobalApi';
+
 
 function InfoSection({trip}) {
 
-  // useEffect(()=>{
-  //   trip&&GetPlacePhoto();
-  // },[trip])
+  const [photoUrl,setPhotoUrl]=useState();
+  useEffect(()=>{
+    trip&&GetPlacePhoto();
+  },[trip])
 
-  // const GetPlacePhoto=async()=>{
- 
-  //   const data={
-  //     textQuery:trip?.userSelection?.location?.label
-  //   }
-  //   const result =await GetPlaceDetails(data).then(resp=>{
-  //     console.log(resp.data)
-  //   })
-  // }
+
+  const GetPlacePhoto=async()=>{
+    const data={
+      textQuery:trip?.userSelection?.location?.label
+    }
+    const result=await GetPlaceDetails(data).then(resp=>{
+      console.log(resp.data.places[0].photos[3].name)
+
+      const PhotoUrl=PHOTO_REF_URL.replace('{NAME}',resp.data.places[0].photos[3].name);
+      setPhotoUrl(PhotoUrl);
+    })
+  }
+
   return (
     <div>
-        <img src='/placeholder.jpg' className='h-[300px] w-full object-cover rounded-xl'/>
+        <img src={photoUrl?photoUrl:'/placeholder.jpg'} className='h-[300px] w-full object-cover rounded-xl'/>
 
         <div className='flex justify-between items-center'>
             <div className='my-5 flex flex-col gap-2'>
